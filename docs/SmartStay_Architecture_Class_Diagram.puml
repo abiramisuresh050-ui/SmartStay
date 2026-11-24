@@ -1,0 +1,156 @@
+@startuml SmartStay_Architecture_Class_Diagram
+' =============================================================================
+' Figure 1b: Application Layers Class Diagram (A4 Portrait — No Clipping)
+' Presentation (view) -> Service (service) -> Data Access & DB (dao / database)
+' Kingston University Student ID: K2639088
+' =============================================================================
+
+top to bottom direction
+skinparam dpi 150
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontName "Times New Roman"
+skinparam classFontSize 11
+skinparam classAttributeFontSize 10
+skinparam packageFontSize 12
+skinparam arrowFontSize 10
+skinparam nodesep 20
+skinparam ranksep 28
+
+title SmartStay Hotel Booking System — Layered Architecture Class Diagram (K2639088)
+
+package "Presentation Layer (view)" #FFF3E0 {
+  class K2639088_MainFrame {
+    - tabbedPane : JTabbedPane
+    - dbStatusLabel : JLabel
+    --
+    + main(args : String[]) : void
+  }
+
+  class K2639088_RoomForm {
+    - roomService : K2639088_RoomService
+    + refreshTable() : void
+  }
+
+  class K2639088_GuestForm {
+    - bookingService : K2639088_BookingService
+    + refreshTable() : void
+  }
+
+  class K2639088_BookingForm {
+    - bookingService : K2639088_BookingService
+    + refreshData() : void
+  }
+
+  class K2639088_InvoiceForm {
+    - invoiceService : K2639088_InvoiceService
+    + displayInvoiceForReservation(r) : void
+  }
+
+  K2639088_MainFrame *-- K2639088_RoomForm
+  K2639088_MainFrame *-- K2639088_GuestForm
+  K2639088_MainFrame *-- K2639088_BookingForm
+  K2639088_MainFrame *-- K2639088_InvoiceForm
+}
+
+package "Service Layer (service)" #E8F5E9 {
+  class K2639088_RoomService {
+    - roomDAO : K2639088_RoomDAO
+    - roomListCache : List<K2639088_Room>
+    - roomMapCache : Map<String, K2639088_Room>
+    --
+    + loadAllRooms() : List<K2639088_Room>
+    + addRoom(id, type, bed, status) : K2639088_Room
+    + updateRoom(id, type, bed, status) : K2639088_Room
+    + updateRoomStatus(id, status) : void
+    + deleteRoom(id : String) : void
+    + mergeSortByRoomId(rooms) : List<K2639088_Room>
+    + filterAvailableRoomsByType(rooms, type) : List
+  }
+
+  class K2639088_BookingService {
+    - customerDAO : K2639088_CustomerDAO
+    - roomDAO : K2639088_RoomDAO
+    - reservationDAO : K2639088_ReservationDAO
+    - customerByNicMap : Map<String, K2639088_Customer>
+    - reservationCache : List<K2639088_Reservation>
+    --
+    + registerCustomer(...) : K2639088_Customer
+    + searchAvailableRooms(...) : List<K2639088_Room>
+    + createReservation(...) : K2639088_Reservation
+    + modifyReservation(...) : void
+    + cancelReservation(res, now) : void
+    + hasDateOverlap(s1, e1, s2, e2) : boolean
+    + mergeSortByCheckInDate(list) : List
+    + binarySearchByBookingId(list, id) : K2639088_Reservation
+    + linearSearchByGuestName(list, q) : List
+  }
+
+  class K2639088_InvoiceService {
+    - reservationDAO : K2639088_ReservationDAO
+    + {static} LONG_STAY_NIGHTS_THRESHOLD : int = 5
+    + {static} LONG_STAY_DISCOUNT_RATE : double = 0.12
+    --
+    + calculateInvoice(res) : K2639088_Invoice
+    + generateAndSaveInvoice(res) : K2639088_Invoice
+    + settleInvoice(inv) : void
+    + formatInvoiceText(inv) : String
+  }
+}
+
+package "Data Access & Database Layer (dao / database)" #E3F2FD {
+  class K2639088_RoomDAO {
+    + addRoom(room) : boolean
+    + updateRoom(room) : boolean
+    + updateRoomStatus(id, status) : boolean
+    + deleteRoom(id : String) : boolean
+    + getAllRooms() : List<K2639088_Room>
+  }
+
+  class K2639088_CustomerDAO {
+    + addCustomer(c) : K2639088_Customer
+    + updateCustomer(c) : boolean
+    + getAllCustomers() : List<K2639088_Customer>
+    + getCustomerByNicPassport(nic) : K2639088_Customer
+  }
+
+  class K2639088_ReservationDAO {
+    + createReservation(r) : boolean
+    + updateReservation(r) : boolean
+    + cancelReservation(r) : boolean
+    + saveInvoice(inv) : boolean
+    + recordFinalPayment(r, amt) : boolean
+    + getAllReservations() : List<K2639088_Reservation>
+  }
+
+  class K2639088_DatabaseConnection <<Singleton>> {
+    - {static} instance : K2639088_DatabaseConnection
+    - url : String
+    - username : String
+    - password : String
+    --
+    + {static} getInstance() : K2639088_DatabaseConnection
+    + getConnection() : Connection
+    + testConnection() : boolean
+  }
+
+  K2639088_RoomDAO ..> K2639088_DatabaseConnection
+  K2639088_CustomerDAO ..> K2639088_DatabaseConnection
+  K2639088_ReservationDAO ..> K2639088_DatabaseConnection
+}
+
+' Inter-layer Dependencies
+K2639088_RoomForm ..> K2639088_RoomService
+K2639088_GuestForm ..> K2639088_BookingService
+K2639088_BookingForm ..> K2639088_BookingService
+K2639088_InvoiceForm ..> K2639088_InvoiceService
+
+K2639088_RoomService ..> K2639088_RoomDAO
+K2639088_BookingService ..> K2639088_CustomerDAO
+K2639088_BookingService ..> K2639088_ReservationDAO
+K2639088_InvoiceService ..> K2639088_ReservationDAO
+
+@enduml

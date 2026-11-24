@@ -1,0 +1,85 @@
+@startuml SmartStay_ER_Diagram
+' =============================================================================
+' SmartStay Hotel Booking System — MySQL ER Diagram (A4 Portrait Layout)
+' Kingston University Student ID: K2639088
+' =============================================================================
+
+top to bottom direction
+skinparam dpi 300
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam defaultFontName "Times New Roman"
+skinparam entityFontSize 11
+skinparam nodesep 30
+skinparam ranksep 35
+
+title SmartStay Hotel Booking System — MySQL ER Diagram (smartstay_db)
+
+entity "customers" as customers #E8F5E9 {
+  * **customer_id** : INT <<PK, AI>>
+  --
+  * nic_passport : VARCHAR(50) <<UK>>
+  * full_name : VARCHAR(120)
+  * contact_number : VARCHAR(30)
+  * email : VARCHAR(120)
+    created_at : TIMESTAMP
+}
+
+entity "rooms" as rooms #FFFDE7 {
+  * **room_id** : VARCHAR(20) <<PK>>
+  --
+  * room_type : ENUM
+  * bed_type : ENUM
+  * daily_rate : DECIMAL(10,2)
+  * base_capacity : INT
+  * max_capacity : INT
+  * complimentary_breakfast : BOOLEAN
+  * extra_guest_charge : DECIMAL(10,2)
+  * tax_rate : DECIMAL(5,2)
+  * availability_status : ENUM
+}
+
+entity "reservations" as reservations #E3F2FD {
+  * **reservation_id** : VARCHAR(20) <<PK>>
+  --
+  * customer_id : INT <<FK>>
+  * room_id : VARCHAR(20) <<FK>>
+  * booking_date : DATE
+  * check_in_date : DATE
+  * check_out_date : DATE
+  * num_guests : INT
+  * booking_advance : DECIMAL(10,2)
+  * reservation_status : ENUM
+}
+
+entity "invoices" as invoices #F3E5F5 {
+  * **invoice_id** : VARCHAR(20) <<PK>>
+  --
+  * reservation_id : VARCHAR(20) <<FK, UK>>
+  * num_nights : INT
+  * base_room_charge : DECIMAL(10,2)
+  * extra_guest_charge : DECIMAL(10,2)
+  * discount_amount : DECIMAL(10,2)
+  * tax_amount : DECIMAL(10,2)
+  * advance_deducted : DECIMAL(10,2)
+  * final_payable_amount : DECIMAL(10,2)
+  * refund_due : DECIMAL(10,2)
+    generated_at : TIMESTAMP
+}
+
+entity "payments" as payments #FFF3E0 {
+  * **payment_id** : INT <<PK, AI>>
+  --
+  * reservation_id : VARCHAR(20) <<FK>>
+  * payment_type : ENUM
+  * amount : DECIMAL(10,2)
+    payment_date : TIMESTAMP
+}
+
+customers ||--o{ reservations : "makes (1 : 0..*)"
+rooms ||--o{ reservations : "booked in (1 : 0..*)"
+reservations ||--o| invoices : "generates (1 : 0..1)"
+reservations ||--|{ payments : "records (1 : 1..*)"
+
+@enduml

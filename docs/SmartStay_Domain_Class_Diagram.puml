@@ -1,0 +1,158 @@
+@startuml SmartStay_Domain_Class_Diagram
+' =============================================================================
+' Figure 1a: Domain Model Class Diagram (A4 Portrait — No Clipping)
+' Kingston University Student ID: K2639088
+' =============================================================================
+
+top to bottom direction
+skinparam dpi 150
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontName "Times New Roman"
+skinparam classFontSize 11
+skinparam classAttributeFontSize 10
+skinparam packageFontSize 12
+skinparam arrowFontSize 10
+skinparam nodesep 22
+skinparam ranksep 30
+
+title SmartStay Hotel Booking System — Domain Model Class Diagram (K2639088)
+
+package "Domain Model Layer (model)" #FFFDE7 {
+
+  abstract class K2639088_Room {
+    - roomId : String
+    - bedType : BedType
+    - availabilityStatus : AvailabilityStatus
+    --
+    + {abstract} getRoomType() : RoomType
+    + {abstract} getDailyRate() : double
+    + {abstract} hasComplimentaryBreakfast() : boolean
+    + {abstract} getExtraGuestChargeRate() : double
+    + {abstract} getTaxRate() : double
+    + {abstract} getBaseCapacity() : int
+    + {abstract} getMaxCapacity() : int
+    + isAvailable() : boolean
+    + setAvailabilityStatus(status : AvailabilityStatus) : void
+  }
+
+  class K2639088_StandardRoom {
+    + getRoomType() : RoomType
+    + getDailyRate() : double [6000]
+    + hasComplimentaryBreakfast() : boolean [false]
+    + getExtraGuestChargeRate() : double [1000]
+    + getTaxRate() : double [0.10]
+    + getBaseCapacity() : int [2]
+    + getMaxCapacity() : int [3]
+  }
+
+  class K2639088_DeluxeRoom {
+    + getRoomType() : RoomType
+    + getDailyRate() : double [9000]
+    + hasComplimentaryBreakfast() : boolean [true]
+    + getExtraGuestChargeRate() : double [1500]
+    + getTaxRate() : double [0.12]
+    + getBaseCapacity() : int [2]
+    + getMaxCapacity() : int [4]
+  }
+
+  class K2639088_SuiteRoom {
+    + getRoomType() : RoomType
+    + getDailyRate() : double [14000]
+    + hasComplimentaryBreakfast() : boolean [true]
+    + getExtraGuestChargeRate() : double [2000]
+    + getTaxRate() : double [0.15]
+    + getBaseCapacity() : int [3]
+    + getMaxCapacity() : int [5]
+  }
+
+  class K2639088_FamilySuiteRoom {
+    + getRoomType() : RoomType
+    + getDailyRate() : double [18000]
+    + hasComplimentaryBreakfast() : boolean [true]
+    + getExtraGuestChargeRate() : double [2500]
+    + getTaxRate() : double [0.15]
+    + getBaseCapacity() : int [4]
+    + getMaxCapacity() : int [6]
+  }
+
+  class K2639088_RoomFactory <<Factory>> {
+    + {static} createRoom(id : String, type : RoomType,
+      bed : BedType, status : AvailabilityStatus) : K2639088_Room
+  }
+
+  class K2639088_Customer {
+    - customerId : int
+    - nicPassport : String
+    - fullName : String
+    - contactNumber : String
+    - email : String
+    --
+    + getCustomerId() : int
+    + getNicPassport() : String
+    + getFullName() : String
+    + setEmail(email : String) : void
+  }
+
+  class K2639088_Reservation {
+    + {static} STANDARD_BOOKING_ADVANCE : double = 10000.00
+    - reservationId : String
+    - bookingDate : LocalDate
+    - checkInDate : LocalDate
+    - checkOutDate : LocalDate
+    - numberOfGuests : int
+    - bookingAdvance : double
+    - status : ReservationStatus
+    --
+    + getNumberOfNights() : long
+    + getReservationId() : String
+    + setStatus(status : ReservationStatus) : void
+  }
+
+  class K2639088_Invoice {
+    - invoiceId : String
+    - numberOfNights : long
+    - extraGuestsCount : int
+    - baseRoomCharge : double
+    - extraGuestCharge : double
+    - discountAmount : double
+    - taxAmount : double
+    - bookingAdvanceDeducted : double
+    - finalPayableAmount : double
+    - refundDue : double
+    - generatedAt : LocalDateTime
+    --
+    + getFinalPayableAmount() : double
+    + getRefundDue() : double
+  }
+
+  class K2639088_Payment {
+    - paymentId : int
+    - reservationId : String
+    - paymentType : PaymentType
+    - amount : double
+    - paymentDate : LocalDateTime
+    --
+    + getAmount() : double
+  }
+
+  ' Inheritance (Room Hierarchy)
+  K2639088_Room <|-- K2639088_StandardRoom
+  K2639088_Room <|-- K2639088_DeluxeRoom
+  K2639088_Room <|-- K2639088_SuiteRoom
+  K2639088_Room <|-- K2639088_FamilySuiteRoom
+
+  ' Factory Dependency
+  K2639088_RoomFactory ..> K2639088_Room : <<creates>>
+
+  ' Aggregation & Composition Associations
+  K2639088_Customer "1" o-- "0..*" K2639088_Reservation : makes
+  K2639088_Room "1" o-- "0..*" K2639088_Reservation : books
+  K2639088_Reservation "1" *-- "0..1" K2639088_Invoice : generates
+  K2639088_Reservation "1" *-- "1..*" K2639088_Payment : records
+}
+
+@enduml
