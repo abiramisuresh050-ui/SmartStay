@@ -1,0 +1,42 @@
+# Maven build output
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# Compiled Java classes and archives
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# Apache NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+nbactions.xml
+
+# VS Code & IntelliJ IDEA
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# LibreOffice / Word temporary lock files
+.~lock.*#
+~$*.docx
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db
+*~
